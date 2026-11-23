@@ -97,6 +97,14 @@
   .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:700;opacity:0;transition:.2s;pointer-events:none;z-index:40;white-space:nowrap}
   .toast.show{opacity:1}
   .empty{color:var(--muted);font-size:14px;text-align:center;padding:14px 0}
+  .install{display:none;align-items:center;gap:12px;background:var(--accent-soft);border:0}
+  .install.on{display:flex}
+  .install img{width:44px;height:44px;border-radius:11px;flex:0 0 auto}
+  .install .txt{flex:1;font-size:14px}
+  .install .txt b{display:block;font-size:15px}
+  .install .close{background:none;border:0;color:var(--muted);font-size:20px;padding:4px}
+  .steps{margin:0;padding-left:22px}.steps li{margin-bottom:10px;font-size:16px}
+  .ios-share{display:inline-block;vertical-align:-4px;width:20px;height:20px}
   details summary{cursor:pointer;font-weight:700;font-size:15px;list-style:none}
   details summary::-webkit-details-marker{display:none}
   details summary::after{content:"＋";float:right;color:var(--muted)}
@@ -110,6 +118,12 @@
 
   <!-- ================= SAVINGS ================= -->
   <section class="screen on" id="s-savings">
+    <div class="card install" id="installBanner">
+      <img src="icon-192.png" alt="">
+      <div class="txt"><b>Get the app</b>Put Roll for Savings on your home screen.</div>
+      <button class="btn" data-install>Install</button>
+      <button class="close" id="installClose" aria-label="Not now">×</button>
+    </div>
     <div class="chips" id="chips"></div>
 
     <div class="card hero">
@@ -215,6 +229,11 @@
       <h2>Your name</h2>
       <label class="f" style="margin:0"><span>Used in "I need more" texts</span><input id="myName" placeholder="Your first name"></label>
     </div>
+    <div class="card" id="installCard">
+      <h2>Install on this phone</h2>
+      <p class="hint" id="installCardTxt">Add Roll for Savings to your home screen so it opens like a regular app.</p>
+      <button class="btn full" data-install>Install app</button>
+    </div>
     <div class="card">
       <h2>Backup</h2>
       <p class="hint">Everything is saved on this phone only. Make a backup before switching phones or clearing your browser.</p>
@@ -266,6 +285,14 @@
     <button class="btn ghost" id="rCopy">Copy</button>
   </div>
   <p class="hint" style="margin:10px 0 0;text-align:center">Sending also adds it to your Log.</p>
+</div>
+
+<div class="sheet-bg" id="instBg"></div>
+<div class="sheet" id="instSheet" role="dialog" aria-label="Install">
+  <div class="grab"></div>
+  <h2 style="margin:0 0 12px;font-size:20px">Install Roll for Savings</h2>
+  <div id="instSteps"></div>
+  <button class="btn full" id="instDone" style="margin-top:8px">Got it</button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -519,6 +546,46 @@
     window.scrollTo(0,0);
   }
   document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
+
+
+  // ---------- install ----------
+  const ua=navigator.userAgent||"";
+  const isIOS=/iphone|ipad|ipod/i.test(ua)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  const isAndroid=/android/i.test(ua);
+  const isSafari=/safari/i.test(ua)&&!/crios|fxios|edgios|chrome|android/i.test(ua);
+  const installed=()=>window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  let deferredPrompt=null;
+  function installUI(){
+    const done=installed();
+    let dismissed=false; try{ dismissed=localStorage.getItem("rfs-install-dismissed")==="1"; }catch(e){}
+    $("installBanner").classList.toggle("on",!done&&!dismissed);
+    $("installCard").style.display=done?"none":"";
+  }
+  window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); deferredPrompt=e; installUI(); });
+  window.addEventListener("appinstalled",()=>{ deferredPrompt=null; installUI(); toast("Installed — check your home screen"); });
+  $("installClose").onclick=()=>{ try{ localStorage.setItem("rfs-install-dismissed","1"); }catch(e){} installUI(); };
+  const shareIcon='<svg class="ios-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M5 11v9h14v-9"/></svg>';
+  function showSteps(){
+    let h;
+    if(isIOS&&!isSafari){
+      h=`<ol class="steps"><li>Copy this page's address, or tap the share button and choose <b>Open in Safari</b>.</li><li>In <b>Safari</b>, tap the Share button ${shareIcon} at the bottom.</li><li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li></ol><p class="hint">On iPhone, apps like this can only be installed from Safari.</p>`;
+    } else if(isIOS){
+      h=`<ol class="steps"><li>Tap the Share button ${shareIcon} at the bottom of Safari.</li><li>Scroll down and tap <b>Add to Home Screen</b>.</li><li>Tap <b>Add</b>. The Roll for Savings icon appears on your home screen.</li></ol>`;
+    } else if(isAndroid){
+      h=`<ol class="steps"><li>Open this page in <b>Chrome</b>.</li><li>Tap the <b>⋮</b> menu at the top right.</li><li>Tap <b>Install app</b> or <b>Add to Home screen</b>, then <b>Install</b>.</li></ol>`;
+    } else {
+      h=`<ol class="steps"><li>Open this page on your phone.</li><li><b>iPhone:</b> in Safari, tap Share ${shareIcon} → <b>Add to Home Screen</b>.</li><li><b>Android:</b> in Chrome, tap <b>⋮</b> → <b>Install app</b>.</li></ol><p class="hint">On a computer, Chrome or Edge may show an install icon at the right end of the address bar.</p>`;
+    }
+    $("instSteps").innerHTML=h;
+    $("instBg").classList.add("on"); requestAnimationFrame(()=>$("instSheet").classList.add("on"));
+  }
+  function hideSteps(){ $("instSheet").classList.remove("on"); $("instBg").classList.remove("on"); }
+  $("instBg").onclick=hideSteps; $("instDone").onclick=hideSteps;
+  document.querySelectorAll("[data-install]").forEach(b=>b.addEventListener("click",async()=>{
+    if(deferredPrompt){ deferredPrompt.prompt(); try{ await deferredPrompt.userChoice; }catch(e){} deferredPrompt=null; installUI(); }
+    else showSteps();
+  }));
+  installUI();
 
   let tt; function toast(m){ const el=$("toast"); el.textContent=m; el.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("show"),1800); }
 
