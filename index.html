@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Roll for Savings</title>
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#b5651d">
@@ -11,727 +11,522 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Roll for Savings">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
   :root{
-    --bg:#f6f2ec; --card:#ffffff; --ink:#2a2118; --muted:#7a6c5d; --line:#e7ded2;
-    --accent:#b5651d; --accent-soft:#f6e6d6; --good:#2f7d4f; --good-soft:#e2f2e8;
-    --bad:#a8432f; --store:#a8432f; --roll:#2f7d4f;
+    --bg:#f6f2ec; --card:#fff; --ink:#2a2118; --muted:#7a6c5d; --line:#e7ded2;
+    --accent:#b5651d; --accent-soft:#f6e6d6; --good:#2f7d4f; --good-soft:#e2f2e8; --bad:#a8432f;
+    --nav:64px;
   }
   @media (prefers-color-scheme: dark){
     :root{ --bg:#1b1713; --card:#25201a; --ink:#f1e9df; --muted:#a8998a; --line:#3a3229;
-      --accent:#e08a3c; --accent-soft:#3a2b1d; --good:#5cc187; --good-soft:#1f3328; --bad:#e07a62; --store:#e07a62; --roll:#5cc187; }
+      --accent:#e08a3c; --accent-soft:#3a2b1d; --good:#5cc187; --good-soft:#1f3328; --bad:#e07a62; }
   }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.45}
-  .wrap{max-width:1100px;margin:0 auto;padding:24px 18px 60px}
-  header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:18px}
-  h1{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em}
-  h1 span{color:var(--accent)}
-  .sub{color:var(--muted);margin:4px 0 0}
-  nav.tabs{display:flex;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px}
-  nav.tabs button{border:0;background:transparent;color:var(--muted);padding:8px 14px;border-radius:9px;font:600 14px Inter;cursor:pointer}
-  nav.tabs button.on{background:var(--accent);color:#fff}
-  .grid{display:grid;grid-template-columns:380px 1fr;gap:18px}
-  @media (max-width:880px){.grid{grid-template-columns:1fr}}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
-  .card h2{margin:0 0 4px;font-size:16px;font-weight:700}
-  .card .hint{color:var(--muted);font-size:13px;margin:0 0 14px}
-  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-  .chip{border:1px solid var(--line);background:transparent;color:var(--ink);padding:7px 11px;border-radius:999px;font:600 13px Inter;cursor:pointer}
-  .chip.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
-  label.f{display:block;margin-bottom:10px}
-  label.f > span{display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:4px}
-  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  input,select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:500 14px Inter}
-  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:-1px}
-  .money{position:relative}
-  .money::before{content:"$";position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px}
-  .money input{padding-left:20px}
-  .eq-row{display:grid;grid-template-columns:1fr 100px 32px;gap:6px;margin-bottom:6px}
-  .x{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;cursor:pointer;font-size:16px}
-  .x:hover{color:var(--bad);border-color:var(--bad)}
-  .btn{border:1px solid var(--accent);background:var(--accent);color:#fff;padding:9px 14px;border-radius:9px;font:600 14px Inter;cursor:pointer}
-  .btn.ghost{background:transparent;color:var(--accent)}
-  .total-line{display:flex;justify-content:space-between;border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;font-weight:700}
-  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
-  @media (max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
-  .kpi .l{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-  .kpi .v{font:700 24px 'JetBrains Mono',monospace;margin-top:4px;letter-spacing:-.02em}
-  .kpi .s{font-size:12.5px;color:var(--muted);margin-top:2px}
-  .kpi.hero{background:var(--good-soft);border-color:transparent}
-  .kpi.hero .v{color:var(--good)}
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  th,td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--line)}
-  th:first-child,td:first-child{text-align:left}
-  th{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:700}
-  td.num{font-family:'JetBrains Mono',monospace;font-size:13.5px}
-  tr.cur td{background:var(--accent-soft)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,sans-serif;font-size:16px;line-height:1.4}
+  .app{max-width:560px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 14px calc(var(--nav) + 90px + env(safe-area-inset-bottom))}
+  header{display:flex;align-items:center;gap:10px;margin:4px 2px 14px}
+  header img{width:36px;height:36px;border-radius:9px}
+  header h1{font-size:22px;margin:0;font-weight:800;letter-spacing:-.02em}
+  header h1 span{color:var(--accent)}
+  .screen{display:none}.screen.on{display:block}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:12px}
+  .card h2{font-size:15px;margin:0 0 10px;font-weight:700}
+  .hint{color:var(--muted);font-size:13px;margin:0 0 10px}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:12px;scrollbar-width:none}
+  .chip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px 12px;border-radius:999px;font-weight:600;font-size:14px}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+  .hero{background:var(--good-soft);border:0;text-align:center;padding:20px 16px}
+  .hero .l{font-size:13px;font-weight:700;color:var(--good);text-transform:uppercase;letter-spacing:.05em}
+  .hero .v{font-size:44px;font-weight:800;color:var(--good);letter-spacing:-.03em;line-height:1.1;margin:4px 0}
+  .hero .s{font-size:14px;color:var(--muted)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .stat .l{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+  .stat .v{font-size:24px;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+  .stat .s{font-size:12.5px;color:var(--muted)}
   .good{color:var(--good)} .bad{color:var(--bad)}
-  .vs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .vs > div{border-radius:12px;padding:12px;border:1px solid var(--line)}
-  .vs .t{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase}
-  .vs .p{font:700 20px 'JetBrains Mono',monospace}
-  .legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin-bottom:6px}
-  .legend i{display:inline-block;width:12px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle}
-  svg text{fill:var(--muted);font:11px Inter}
-  .runway{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-  @media (max-width:640px){.runway{grid-template-columns:1fr}}
-  .runway div{border:1px solid var(--line);border-radius:12px;padding:12px}
-  .runway b{display:block;font:700 18px 'JetBrains Mono',monospace}
-  .runway span{font-size:12.5px;color:var(--muted)}
-  .log-row{display:grid;grid-template-columns:130px 1fr 110px 100px 32px;gap:6px;margin-bottom:6px;align-items:center}
-  @media (max-width:640px){.log-row{grid-template-columns:1fr 1fr}}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;opacity:0;transition:.25s;pointer-events:none}
+  .so-far{display:flex;justify-content:space-between;align-items:center;background:var(--accent-soft);border:0}
+  .so-far b{font-size:22px}
+  .link{color:var(--accent);font-weight:700;background:none;border:0;font-size:14px;padding:0}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:8px 4px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  tr.cur td{background:var(--accent-soft);font-weight:700}
+  svg text{fill:var(--muted);font-size:11px}
+  label.f{display:block;margin-bottom:10px}
+  label.f>span{display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:4px}
+  input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);font-size:16px;font-family:inherit}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+  .money{position:relative}.money::before{content:"$";position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .money input{padding-left:24px}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;padding:11px 16px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer}
+  .btn.ghost{background:transparent;color:var(--accent)}
+  .btn.full{width:100%}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .quick{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .quick .btn{padding:12px 8px;font-size:14px}
+  .entry{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}
+  .entry:last-child{border-bottom:0}
+  .entry .t{font-weight:700}
+  .entry .m{font-size:13px;color:var(--muted)}
+  .entry .c{font-weight:800;text-align:right}
+  .entry .acts{grid-column:1/-1;display:none;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .entry.open .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);margin-right:6px;vertical-align:1px}
+  .tag.req{background:#e3ecf7;color:#2c5a8c}
+  .eq{display:grid;grid-template-columns:1fr 104px 40px;gap:6px;margin-bottom:6px}
+  .x{border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:10px;font-size:18px}
+  .total{display:flex;justify-content:space-between;border-top:1px dashed var(--line);margin-top:8px;padding-top:10px;font-weight:700}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:20}
+  nav.tabs .in{display:flex;max-width:560px;width:100%}
+  nav.tabs button{flex:1;height:var(--nav);border:0;background:none;color:var(--muted);font-size:12px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+  nav.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2}
+  nav.tabs button.on{color:var(--accent)}
+  .fab{position:fixed;right:max(16px, calc(50% - 264px));bottom:calc(var(--nav) + 16px + env(safe-area-inset-bottom));z-index:21;border:0;background:var(--accent);color:#fff;font-weight:800;font-size:16px;padding:15px 20px;border-radius:999px;box-shadow:0 6px 20px rgba(0,0,0,.22)}
+  .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:30;display:none}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--card);border-radius:20px 20px 0 0;max-width:560px;margin:0 auto;padding:10px 18px calc(18px + env(safe-area-inset-bottom));transform:translateY(110%);visibility:hidden;transition:transform .25s ease,visibility 0s .25s;max-height:92vh;overflow:auto}
+  .sheet.on{transform:none;visibility:visible;transition:transform .25s ease}.sheet-bg.on{display:block}
+  .grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:4px auto 12px}
+  .qty{display:flex;gap:8px;align-items:center}
+  .qty button{width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:24px;font-weight:700}
+  .qty input{width:84px;text-align:center;font-size:22px;font-weight:800}
+  .qty select{flex:1}
+  .preview{background:var(--bg);border:1px dashed var(--line);border-radius:12px;padding:12px;font-size:15px;margin:10px 0}
+  .toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:700;opacity:0;transition:.2s;pointer-events:none;z-index:40;white-space:nowrap}
   .toast.show{opacity:1}
-  textarea{width:100%;min-height:150px;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);font:13px 'JetBrains Mono',monospace}
-  .hidden{display:none}
-  .qty{display:flex;gap:6px;align-items:center}
-  .qty input{width:80px;text-align:center;font:700 18px 'JetBrains Mono',monospace}
-  .qbtn{width:42px;height:42px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:700 20px Inter;cursor:pointer}
-  .btn.big{width:100%;padding:14px;font-size:17px;margin-top:6px}
-  .fee-line{font-size:14px;margin:4px 0 8px;color:var(--muted)}
-  .req{display:grid;grid-template-columns:1fr auto;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);align-items:center}
-  .req:last-child{border-bottom:0}
-  .req .who{font-weight:700}
-  .req .meta{font-size:13px;color:var(--muted)}
-  .req .ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-  .req select{width:auto;padding:6px 8px;font-size:13px}
-  .pill{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700}
-  .pill.new{background:var(--accent-soft);color:var(--accent)}
-  .pill.scheduled{background:#e3ecf7;color:#2c5a8c}
-  .pill.done{background:var(--good-soft);color:var(--good)}
-  .paid{font-size:13px;display:flex;gap:4px;align-items:center}
-  .paid input{width:auto}
-  .foot{color:var(--muted);font-size:12.5px;text-align:center;margin-top:10px}
+  .empty{color:var(--muted);font-size:14px;text-align:center;padding:14px 0}
+  details summary{cursor:pointer;font-weight:700;font-size:15px;list-style:none}
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:"＋";float:right;color:var(--muted)}
+  details[open] summary::after{content:"－"}
+  details[open] summary{margin-bottom:10px}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>Roll for <span>Savings</span></h1>
-      <p class="sub">Store-bought packs vs. rolling with an injector machine — plug in your own prices.</p>
+<div class="app">
+  <header><img src="icon-192.png" alt=""><h1>Roll for <span>Savings</span></h1></header>
+
+  <!-- ================= SAVINGS ================= -->
+  <section class="screen on" id="s-savings">
+    <div class="chips" id="chips"></div>
+
+    <div class="card hero">
+      <div class="l">You save per year</div>
+      <div class="v" id="hYear">–</div>
+      <div class="s" id="hSub"></div>
     </div>
-    <nav class="tabs">
-      <button data-tab="calc" class="on">Calculator</button>
-      <button data-tab="compare">Compare usage</button>
-      <button data-tab="tracker">My tracker</button>
-      <button data-tab="more">I need more</button>
-    </nav>
-  </header>
 
-  <div class="grid">
-    <!-- ============ INPUTS ============ -->
-    <aside>
-      <div class="card">
-        <h2>1 · How much do you smoke?</h2>
-        <p class="hint">Pick a preset or enter your own number.</p>
-        <div class="chips" id="presets"></div>
-        <div class="row2">
-          <label class="f"><span>Cigarettes per day</span><input type="number" id="cpd" min="0" step="1"></label>
-          <label class="f"><span>Cigarettes per pack</span><input type="number" id="perPack" min="1" step="1"></label>
-        </div>
+    <div class="card so-far" id="soFar" style="display:none">
+      <div><div class="hint" style="margin:0">Actually saved so far</div><b id="soFarV">–</b> <span class="hint" id="soFarS" style="margin:0"></span></div>
+      <button class="link" data-go="log">Log ›</button>
+    </div>
+
+    <div class="two">
+      <div class="card stat"><div class="l">Store pack</div><div class="v bad" id="pStore">–</div><div class="s" id="pStoreS"></div></div>
+      <div class="card stat"><div class="l">Rolled pack</div><div class="v good" id="pRoll">–</div><div class="s" id="pRollS"></div></div>
+      <div class="card stat"><div class="l">Setup paid off</div><div class="v" id="pBE">–</div><div class="s" id="pBES"></div></div>
+      <div class="card stat"><div class="l">5 years</div><div class="v" id="p5">–</div><div class="s">saved after setup</div></div>
+    </div>
+
+    <div class="card">
+      <h2>First year: money spent</h2>
+      <svg id="chart" viewBox="0 0 520 230" width="100%" role="img" aria-label="Cost over 12 months"></svg>
+      <div class="row hint" style="margin:6px 0 0;gap:14px"><span><b class="bad">━</b> Buying packs</span><span><b class="good">━</b> Rolling (with setup)</span></div>
+    </div>
+
+    <div class="card">
+      <h2>Restock</h2>
+      <div class="two" style="gap:8px">
+        <div class="stat"><div class="v mono" id="rBag">–</div><div class="s">days per bag of tobacco</div></div>
+        <div class="stat"><div class="v mono" id="rBox">–</div><div class="s">days per box of tubes</div></div>
       </div>
+      <p class="hint" style="margin:10px 0 0" id="rMonth"></p>
+    </div>
 
-      <div class="card">
-        <h2>2 · Store-bought price</h2>
-        <p class="hint">What a pack costs you today, tax included.</p>
-        <div class="row2">
-          <label class="f"><span>Price per pack</span><div class="money"><input type="number" id="packPrice" step="0.01" min="0"></div></label>
-          <label class="f"><span>Or carton (10 packs)</span><div class="money"><input type="number" id="cartonPrice" step="0.01" min="0" placeholder="optional"></div></label>
-        </div>
+    <div class="card">
+      <details>
+        <summary>Other usage levels</summary>
+        <table><thead><tr><th>Usage</th><th>Store/yr</th><th>Rolled/yr</th><th>Saved/yr</th></tr></thead><tbody id="cmp"></tbody></table>
+      </details>
+    </div>
+  </section>
+
+  <!-- ================= LOG ================= -->
+  <section class="screen" id="s-log">
+    <div class="card hero">
+      <div class="l">Actually saved</div>
+      <div class="v" id="lSaved">–</div>
+      <div class="s" id="lSavedS">Set your start date below</div>
+    </div>
+    <div class="two">
+      <div class="card stat"><div class="l">You spent</div><div class="v" id="lSpent">$0</div><div class="s">everything logged</div></div>
+      <div class="card stat"><div class="l">Packs would cost</div><div class="v" id="lWould">–</div><div class="s" id="lWouldS"></div></div>
+    </div>
+    <div class="card">
+      <label class="f" style="margin:0"><span>Started rolling on</span><input type="date" id="start"></label>
+    </div>
+    <div class="card">
+      <h2>Add a purchase</h2>
+      <div class="quick" id="quick"></div>
+    </div>
+    <div class="card">
+      <h2>History</h2>
+      <p class="hint">Tap an entry to edit it.</p>
+      <div id="entries"></div>
+    </div>
+  </section>
+
+  <!-- ================= SETUP ================= -->
+  <section class="screen" id="s-setup">
+    <div class="card">
+      <h2>How much you smoke</h2>
+      <div class="two" style="gap:10px">
+        <label class="f"><span>Cigarettes a day</span><input type="number" inputmode="decimal" id="cpd" min="0"></label>
+        <label class="f"><span>Per pack</span><input type="number" inputmode="numeric" id="perPack" min="1"></label>
       </div>
-
-      <div class="card">
-        <h2>3 · Rolling supplies</h2>
-        <p class="hint">Tobacco and tubes (cigarette shells) — the stuff you rebuy.</p>
-        <div class="row2">
-          <label class="f"><span>Tobacco price per bag/can</span><div class="money"><input type="number" id="tobPrice" step="0.01" min="0"></div></label>
-          <label class="f"><span>Bag size (oz)</span><input type="number" id="tobOz" step="0.1" min="0.1"></label>
-        </div>
-        <div class="row2">
-          <label class="f"><span>Tobacco per cigarette (g)</span><input type="number" id="gPer" step="0.05" min="0.1"></label>
-          <label class="f"><span>King or 100s</span>
-            <select id="size"><option value="king">King (~0.7 g)</option><option value="100">100s (~0.85 g)</option><option value="custom">Custom</option></select>
-          </label>
-        </div>
-        <div class="row2">
-          <label class="f"><span>Tube box price</span><div class="money"><input type="number" id="tubePrice" step="0.01" min="0"></div></label>
-          <label class="f"><span>Tubes per box</span><input type="number" id="tubeCount" step="1" min="1"></label>
-        </div>
-        <div class="row2">
-          <label class="f"><span>Waste / spillage (%)</span><input type="number" id="waste" step="1" min="0" max="50"></label>
-          <label class="f"><span>Machine fee per pack</span><div class="money"><input type="number" id="fee" step="0.05" min="0"></div></label>
-        </div>
+    </div>
+    <div class="card">
+      <h2>Store price</h2>
+      <label class="f" style="margin:0"><span>Price per pack (tax included)</span><div class="money"><input type="number" inputmode="decimal" step="0.01" id="packPrice"></div></label>
+    </div>
+    <div class="card">
+      <h2>Your rolling supplies</h2>
+      <div class="two" style="gap:10px">
+        <label class="f"><span>Tobacco bag price</span><div class="money"><input type="number" inputmode="decimal" step="0.01" id="tobPrice"></div></label>
+        <label class="f"><span>Bag size (oz)</span><input type="number" inputmode="decimal" step="0.1" id="tobOz"></label>
+        <label class="f"><span>Tube box price</span><div class="money"><input type="number" inputmode="decimal" step="0.01" id="tubePrice"></div></label>
+        <label class="f"><span>Tubes per box</span><input type="number" inputmode="numeric" id="tubeCount"></label>
+        <label class="f"><span>Size</span><select id="size"><option value="0.7">King (~0.7 g)</option><option value="0.85">100s (~0.85 g)</option><option value="custom">Custom</option></select></label>
+        <label class="f"><span>Grams per cigarette</span><input type="number" inputmode="decimal" step="0.05" id="gPer"></label>
+        <label class="f"><span>Waste (%)</span><input type="number" inputmode="numeric" id="waste"></label>
+        <label class="f"><span>Machine fee / pack</span><div class="money"><input type="number" inputmode="decimal" step="0.05" id="fee"></div></label>
       </div>
-
-      <div class="card">
-        <h2>4 · Setup costs (one time)</h2>
-        <p class="hint">Equipment you buy once. Add or remove items.</p>
-        <div id="equip"></div>
-        <button class="btn ghost" id="addEq" style="margin-top:6px">+ Add item</button>
-        <div class="total-line"><span>Setup total</span><span id="eqTotal">$0</span></div>
+      <p class="hint" style="margin:0">Machine fee is what you chip in per pack when using someone else's machine. Leave $0 if none.</p>
+    </div>
+    <div class="card">
+      <h2>One-time setup costs</h2>
+      <div id="equip"></div>
+      <button class="btn ghost" id="addEq" style="margin-top:4px">＋ Add item</button>
+      <div class="total"><span>Setup total</span><span id="eqTotal">$0</span></div>
+    </div>
+    <div class="card">
+      <h2>Your name</h2>
+      <label class="f" style="margin:0"><span>Used in "I need more" texts</span><input id="myName" placeholder="Your first name"></label>
+    </div>
+    <div class="card">
+      <h2>Backup</h2>
+      <p class="hint">Everything is saved on this phone only. Make a backup before switching phones or clearing your browser.</p>
+      <div class="row">
+        <button class="btn" id="bkSave">Save backup file</button>
+        <button class="btn ghost" id="bkCopy">Copy backup code</button>
       </div>
-      <button class="btn ghost" id="reset" style="width:100%">Reset to defaults</button>
-    </aside>
-
-    <!-- ============ OUTPUT ============ -->
-    <main>
-      <!-- CALCULATOR -->
-      <section id="tab-calc">
-        <div class="kpis">
-          <div class="kpi hero"><div class="l">Saved per year</div><div class="v" id="kYear">–</div><div class="s" id="kYearS"></div></div>
-          <div class="kpi"><div class="l">Saved per month</div><div class="v" id="kMonth">–</div><div class="s" id="kMonthS"></div></div>
-          <div class="kpi"><div class="l">Break-even</div><div class="v" id="kBE">–</div><div class="s" id="kBES"></div></div>
-          <div class="kpi"><div class="l">5-year savings</div><div class="v" id="k5">–</div><div class="s">after setup costs</div></div>
-        </div>
-
-        <div class="card">
-          <h2>Cost per pack</h2>
-          <p class="hint">What 20 cigarettes actually cost you each way.</p>
-          <div class="vs">
-            <div><div class="t">Store-bought</div><div class="p bad" id="cStorePack">–</div><div class="hint" style="margin:0" id="cStoreCig"></div></div>
-            <div><div class="t">Rolled yourself</div><div class="p good" id="cRollPack">–</div><div class="hint" style="margin:0" id="cRollCig"></div></div>
-          </div>
-          <p class="hint" style="margin:12px 0 0" id="breakdown"></p>
-        </div>
-
-        <div class="card">
-          <h2>First 12 months — total spent</h2>
-          <div class="legend"><span><i style="background:var(--store)"></i>Buying packs</span><span><i style="background:var(--roll)"></i>Rolling (incl. setup)</span></div>
-          <svg id="chart" viewBox="0 0 640 260" width="100%" role="img" aria-label="Cumulative cost chart"></svg>
-        </div>
-
-        <div class="card">
-          <h2>Restock planner</h2>
-          <p class="hint">How long supplies last and how much to buy.</p>
-          <div class="runway">
-            <div><b id="rBag">–</b><span>days per bag of tobacco</span></div>
-            <div><b id="rBox">–</b><span>days per box of tubes</span></div>
-            <div><b id="rMonth">–</b><span>monthly shopping list</span></div>
-          </div>
-          <table style="margin-top:12px">
-            <thead><tr><th>Period</th><th>Bags</th><th>Tube boxes</th><th>Supply cost</th><th>Packs would cost</th></tr></thead>
-            <tbody id="restock"></tbody>
-          </table>
-        </div>
-      </section>
-
-      <!-- COMPARE -->
-      <section id="tab-compare" class="hidden">
-        <div class="card">
-          <h2>Savings by usage level</h2>
-          <p class="hint">Same prices and setup costs, different habits. Your current setting is highlighted.</p>
-          <table>
-            <thead><tr><th>Usage</th><th>Cigs/day</th><th>Packs /yr</th><th>Store /yr</th><th>Rolling /yr</th><th>Saved /yr</th><th>Break-even</th></tr></thead>
-            <tbody id="cmp"></tbody>
-          </table>
-        </div>
-        <div class="card">
-          <h2>Add your own scenario</h2>
-          <p class="hint">Want to see another case? Add it here and it shows up in the table above.</p>
-          <div class="row2">
-            <label class="f"><span>Label</span><input id="newLabel" placeholder="e.g. Weekends only"></label>
-            <label class="f"><span>Cigarettes per day</span><input type="number" id="newCpd" min="0" step="0.5" placeholder="e.g. 6"></label>
-          </div>
-          <button class="btn" id="addScen">Add scenario</button>
-        </div>
-      </section>
-
-      <!-- TRACKER -->
-      <section id="tab-tracker" class="hidden">
-        <div class="kpis">
-          <div class="kpi hero"><div class="l">Actually saved</div><div class="v" id="tSaved">–</div><div class="s" id="tSavedS"></div></div>
-          <div class="kpi"><div class="l">Days rolling</div><div class="v" id="tDays">–</div><div class="s" id="tDaysS"></div></div>
-          <div class="kpi"><div class="l">You spent</div><div class="v" id="tSpent">–</div><div class="s">all logged purchases</div></div>
-          <div class="kpi"><div class="l">Packs would cost</div><div class="v" id="tWould">–</div><div class="s" id="tWouldS"></div></div>
-        </div>
-        <div class="card">
-          <h2>My rolling log</h2>
-          <p class="hint">Log what you actually buy. Saved in this browser only — each person who opens the page keeps their own.</p>
-          <label class="f" style="max-width:220px"><span>Started rolling on</span><input type="date" id="startDate"></label>
-          <div id="log"></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-            <button class="btn ghost" data-quick="Tobacco">+ Tobacco</button>
-            <button class="btn ghost" data-quick="Tubes">+ Tubes</button>
-            <button class="btn ghost" data-quick="Equipment">+ Equipment</button>
-            <button class="btn ghost" data-quick="Other">+ Other</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- I NEED MORE -->
-      <section id="tab-more" class="hidden">
-        <div class="card" id="moreStatus"><p class="hint" style="margin:0">Loading the machine schedule…</p></div>
-
-        <!-- friend view -->
-        <div id="friendView" class="hidden">
-          <div class="card">
-            <h2>I need more</h2>
-            <p class="hint" id="friendIntro">Bring your own tobacco and tubes. Ask for a turn on the machine and say how many packs you need rolled.</p>
-            <label class="f"><span>Your name</span><input id="fName" placeholder="So they know who's asking"></label>
-            <span style="display:block;font-size:12.5px;color:var(--muted);font-weight:600;margin-bottom:4px">How many?</span>
-            <div class="qty">
-              <button class="qbtn" data-q="-1">−</button>
-              <input type="number" id="fQty" min="1" value="1">
-              <button class="qbtn" data-q="1">+</button>
-              <select id="fUnit" style="width:auto"><option value="packs">packs</option><option value="cartons">cartons (10 packs)</option></select>
-            </div>
-            <div class="row2" style="margin-top:10px">
-              <label class="f"><span>Need them by (optional)</span><input type="date" id="fBy"></label>
-              <label class="f"><span>Note (optional)</span><input id="fNote" placeholder="e.g. 100s, I'll drop off tobacco Fri"></label>
-            </div>
-            <div class="fee-line" id="fFee"></div>
-            <button class="btn big" id="fSend">I need more</button>
-            <div id="fFallback" class="hidden" style="margin-top:14px">
-              <p class="hint" style="margin:0 0 6px">This link can't save requests for you, so text it instead:</p>
-              <textarea id="fMsg" readonly style="min-height:90px"></textarea>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center">
-                <button class="btn" id="fCopy">Copy message</button>
-                <a class="btn ghost" id="fSms" href="#" style="text-decoration:none">Open in Messages</a>
-              </div>
-            </div>
-          </div>
-          <div class="card" id="myReqCard">
-            <h2>My requests</h2>
-            <div id="myReqs"></div>
-          </div>
-        </div>
-
-        <!-- owner view -->
-        <div id="ownerView" class="hidden">
-          <div class="kpis" style="grid-template-columns:repeat(3,1fr)">
-            <div class="kpi"><div class="l">Open requests</div><div class="v" id="oOpen">0</div><div class="s" id="oOpenS"></div></div>
-            <div class="kpi"><div class="l">Packs to roll</div><div class="v" id="oPacks">0</div><div class="s">not done yet</div></div>
-            <div class="kpi hero"><div class="l">Fees owed to you</div><div class="v" id="oOwed">$0</div><div class="s">done, not paid</div></div>
-          </div>
-          <div class="card">
-            <h2>Requests</h2>
-            <p class="hint">Everyone who asked for machine time. Update the status as you go.</p>
-            <div id="oReqs"></div>
-            <button class="btn ghost" id="oClear" style="margin-top:10px">Clear finished (done &amp; paid)</button>
-          </div>
-          <div class="card">
-            <h2>Machine fee</h2>
-            <p class="hint">Others see this. Keep the fee to what covers machine wear and its share of the purchase. Set it to $0 if it's free.</p>
-            <div class="row2">
-              <label class="f"><span>Machine fee per pack</span><div class="money"><input type="number" id="oFee" step="0.05" min="0"></div></label>
-              <label class="f"><span>Your name (shown to others)</span><input id="oName"></label>
-            </div>
-            <p class="hint" id="oSaved" style="margin:0"></p>
-          </div>
-        </div>
-      </section>
-      <p class="foot">Prices are placeholders — enter what you actually pay. Estimates only; tobacco per cigarette varies by machine and how full you pack.</p>
-    </main>
-  </div>
+      <label class="f" style="margin-top:12px"><span>Restore from a backup code</span><textarea id="bkPaste" rows="2" placeholder="Paste backup code"></textarea></label>
+      <div class="row">
+        <button class="btn ghost" id="bkLoad">Restore code</button>
+        <label class="btn ghost" style="cursor:pointer">Restore file<input type="file" id="bkFile" accept=".json,application/json,text/plain" hidden></label>
+      </div>
+      <p class="hint" id="storeNote" style="margin:10px 0 0"></p>
+    </div>
+    <button class="btn ghost full" id="reset">Reset prices to defaults</button>
+    <p class="hint" style="text-align:center;margin-top:12px">Prices start as examples. Enter what you actually pay.</p>
+  </section>
 </div>
+
+<button class="fab" id="fab">＋ I need more</button>
+
+<nav class="tabs"><div class="in">
+  <button data-go="savings" class="on"><svg viewBox="0 0 24 24"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Savings</button>
+  <button data-go="log"><svg viewBox="0 0 24 24"><path d="M9 4h10v16H5V8z"/><path d="M9 4v4H5M9 13h6M9 17h6"/></svg>Log</button>
+  <button data-go="setup"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Setup</button>
+</div></nav>
+
+<!-- I need more sheet -->
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-label="I need more">
+  <div class="grab"></div>
+  <h2 style="margin:0 0 4px;font-size:20px">I need more</h2>
+  <p class="hint">Ask for a turn on the machine. You bring your own tobacco and tubes.</p>
+  <label class="f" id="nameWrap"><span>Your name</span><input id="rName" placeholder="Your first name"></label>
+  <span style="display:block;font-size:13px;color:var(--muted);font-weight:600;margin-bottom:4px">How many?</span>
+  <div class="qty">
+    <button data-q="-1" aria-label="Less">−</button>
+    <input type="number" inputmode="numeric" id="rQty" value="1" min="1">
+    <button data-q="1" aria-label="More">＋</button>
+    <select id="rUnit"><option value="1">packs</option><option value="10">cartons</option></select>
+  </div>
+  <div class="two" style="gap:10px;margin-top:10px">
+    <label class="f"><span>Need by (optional)</span><input type="date" id="rBy"></label>
+    <label class="f"><span>Note (optional)</span><input id="rNote" placeholder="e.g. 100s"></label>
+  </div>
+  <div class="preview" id="rPreview"></div>
+  <div class="two" style="gap:8px">
+    <a class="btn" id="rText" href="#">Text it</a>
+    <button class="btn ghost" id="rCopy">Copy</button>
+  </div>
+  <p class="hint" style="margin:10px 0 0;text-align:center">Sending also adds it to your Log.</p>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 (function(){
-  const G_PER_OZ = 28.3495;
-  const DEFAULTS = {
-    cpd:20, perPack:20, packPrice:8.00, cartonPrice:"",
-    tobPrice:20.00, tobOz:6, gPer:0.7, size:"king",
-    tubePrice:4.50, tubeCount:200, waste:5, fee:0, feeTouched:false,
-    equip:[
-      {name:"Injector machine", cost:35},
-      {name:"Cigarette case / tamper tool", cost:10},
-      {name:"Airtight tobacco storage tub", cost:8}
-    ],
-    extraScen:[]
+  "use strict";
+  const $=id=>document.getElementById(id);
+  const num=v=>{const n=parseFloat(v);return isFinite(n)?n:0;};
+  const money=(n,d=0)=>(n<0?"-$":"$")+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
+  const m2=n=>money(n,2);
+  const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const G_PER_OZ=28.3495;
+  const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);};
+  const shortDate=d=>{try{return new Date(d+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"});}catch(e){return d;}};
+
+  // ---------- storage (on this device only) ----------
+  const KEY="rfs-data-v1";
+  const DEFAULTS={
+    settings:{cpd:20,perPack:20,packPrice:8.00,tobPrice:20.00,tobOz:6,gPer:0.7,tubePrice:4.50,tubeCount:200,waste:5,fee:0,
+      equip:[{name:"Injector machine",cost:35},{name:"Case / tamper tool",cost:10},{name:"Airtight tobacco tub",cost:8}]},
+    log:{start:"",items:[]},
+    name:""
   };
-  const PRESETS = [
-    {label:"½ pack/day", cpd:10},
-    {label:"1 pack/day", cpd:20},
-    {label:"1½ packs/day", cpd:30},
-    {label:"2 packs/day", cpd:40},
-    {label:"3 packs/day", cpd:60}
-  ];
-  const KEY="ryo-calc-v1", LKEY="ryo-log-v1";
-
-  const store = {
-    get(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return null; } },
-    set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
-  };
-
-  let S = Object.assign(structuredCloneSafe(DEFAULTS), store.get(KEY)||{});
-  let L = store.get(LKEY) || {start:"", items:[]};
-
-  function structuredCloneSafe(o){ return JSON.parse(JSON.stringify(o)); }
-  const $ = id => document.getElementById(id);
-  const num = v => { const n=parseFloat(v); return isFinite(n)?n:0; };
-  const fmt = (n,d=0) => (n<0?"-":"")+"$"+Math.abs(n).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d});
-  const fmt2 = n => fmt(n,2);
-
-  // ---------- core math ----------
-  function packCost(s){
-    const carton = num(s.cartonPrice);
-    return carton>0 ? carton/10 : num(s.packPrice);
+  const clone=o=>JSON.parse(JSON.stringify(o));
+  function load(){
+    let d=null;
+    try{ d=JSON.parse(localStorage.getItem(KEY)||"null"); }catch(e){}
+    if(!d){ // carry over data from the earlier version if it exists
+      try{
+        const oldS=JSON.parse(localStorage.getItem("ryo-calc-v1")||"null"), oldL=JSON.parse(localStorage.getItem("ryo-log-v1")||"null"), oldN=JSON.parse(localStorage.getItem("ryo-myname")||"null");
+        if(oldS||oldL){ d=clone(DEFAULTS); if(oldS) Object.keys(d.settings).forEach(k=>{ if(oldS[k]!==undefined&&oldS[k]!=="") d.settings[k]=oldS[k]; });
+          if(oldL) d.log={start:oldL.start||"",items:(oldL.items||[]).map(i=>({id:uid(),date:i.date,type:i.type||"Other",note:i.note||"",cost:num(i.cost)}))};
+          if(oldN) d.name=oldN; }
+      }catch(e){}
+    }
+    const base=clone(DEFAULTS);
+    if(d){ base.settings=Object.assign(base.settings,d.settings||{}); base.log=Object.assign(base.log,d.log||{}); base.name=d.name||""; }
+    return base;
   }
-  function unit(s){
-    const perPack = Math.max(1,num(s.perPack));
-    const storeCig = packCost(s)/perPack;
-    const gramsBag = Math.max(0.01,num(s.tobOz))*G_PER_OZ;
-    const wasteF = 1+num(s.waste)/100;
-    const tobCig = num(s.tobPrice)/gramsBag*num(s.gPer)*wasteF;
-    const tubeCig = num(s.tubePrice)/Math.max(1,num(s.tubeCount))*wasteF;
-    const feeCig = num(s.fee)/perPack;
-    const rollCig = tobCig+tubeCig+feeCig;
-    const setup = (s.equip||[]).reduce((a,e)=>a+num(e.cost),0);
-    return {perPack,storeCig,tobCig,tubeCig,feeCig,rollCig,setup,gramsBag,wasteF};
+  let D=load();
+  let saveT=null;
+  function save(){ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem(KEY,JSON.stringify(D)); }catch(e){ toast("Couldn't save on this device"); } },150); }
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  // Ask the browser to keep this data (not clear it when space is low)
+  (async()=>{ try{ if(navigator.storage&&navigator.storage.persist){ const p=await navigator.storage.persisted()||await navigator.storage.persist();
+      $("storeNote").textContent=p?"This phone is set to keep your data.":"Tip: install to your home screen so your phone is less likely to clear your data."; } }catch(e){} })();
+
+  // ---------- math ----------
+  const S=()=>D.settings;
+  function unit(){
+    const s=S(), perPack=Math.max(1,num(s.perPack)), w=1+num(s.waste)/100;
+    const storeCig=num(s.packPrice)/perPack;
+    const gramsBag=Math.max(0.01,num(s.tobOz))*G_PER_OZ;
+    const tobCig=num(s.tobPrice)/gramsBag*num(s.gPer)*w;
+    const tubeCig=num(s.tubePrice)/Math.max(1,num(s.tubeCount))*w;
+    const feeCig=num(s.fee)/perPack;
+    return {perPack,w,storeCig,tobCig,tubeCig,feeCig,rollCig:tobCig+tubeCig+feeCig,gramsBag,setup:(s.equip||[]).reduce((a,e)=>a+num(e.cost),0)};
   }
-  function scenario(s,cpd){
-    const u=unit(s);
-    const day = {store:u.storeCig*cpd, roll:u.rollCig*cpd};
-    const saveDay = day.store-day.roll;
-    const year = {store:day.store*365, roll:day.roll*365, save:saveDay*365};
-    const beDays = saveDay>0 ? u.setup/saveDay : Infinity;
-    return {u,day,saveDay,year,beDays,
-      year1Net: year.save-u.setup, y5: saveDay*365*5-u.setup};
+  function scen(cpd){
+    const u=unit(), store=u.storeCig*cpd, roll=u.rollCig*cpd, save=store-roll;
+    return {u,store,roll,save,year:save*365,be:save>0?u.setup/save:Infinity};
   }
-  function beText(d){
-    if(!isFinite(d)) return "never";
-    if(d<1) return "< 1 day";
-    if(d<60) return Math.ceil(d)+" days";
-    return (d/30.4).toFixed(1)+" mo";
+  const beText=d=>!isFinite(d)?"never":d<1?"day 1":d<60?Math.ceil(d)+" days":(d/30.4).toFixed(1)+" mo";
+  function actual(){
+    const u=unit(), cpd=num(S().cpd), items=D.log.items||[];
+    const spent=items.reduce((a,i)=>a+num(i.cost),0);
+    if(!D.log.start) return {has:false,spent};
+    const days=Math.max(0,Math.floor((new Date(today()+"T00:00:00")-new Date(D.log.start+"T00:00:00"))/864e5));
+    const would=days*cpd*u.storeCig;
+    return {has:true,days,would,spent,saved:would-spent,packs:Math.round(days*cpd/u.perPack)};
   }
 
-  // ---------- inputs ----------
-  const FIELDS=["cpd","perPack","packPrice","cartonPrice","tobPrice","tobOz","gPer","size","tubePrice","tubeCount","waste","fee"];
-  function fillInputs(){
-    FIELDS.forEach(f=>{ $(f).value = S[f]; });
-    renderEquip(); renderPresets();
+  // ---------- SAVINGS ----------
+  const PRESETS=[["½ pack",10],["1 pack",20],["1½ packs",30],["2 packs",40],["3 packs",60]];
+  function renderChips(){
+    const cpd=num(S().cpd);
+    $("chips").innerHTML=PRESETS.map(([l,c])=>`<button class="chip${cpd===c?" on":""}" data-cpd="${c}">${l}/day</button>`).join("")+
+      (PRESETS.some(p=>p[1]===cpd)?"":`<button class="chip on" data-go="setup">${cpd}/day</button>`);
+    $("chips").querySelectorAll("[data-cpd]").forEach(b=>b.onclick=()=>{ S().cpd=+b.dataset.cpd; $("cpd").value=S().cpd; save(); renderAll(); });
+    $("chips").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
   }
-  FIELDS.forEach(f=>{
-    $(f).addEventListener("input",()=>{
-      S[f]=$(f).value;
-      if(f==="size"){ if(S.size==="king"){S.gPer=0.7;$("gPer").value=0.7;} else if(S.size==="100"){S.gPer=0.85;$("gPer").value=0.85;} }
-      if(f==="gPer"){ S.size="custom"; $("size").value="custom"; }
-      if(f==="fee"){ S.feeTouched=true; }
-      save(); render();
+  function renderSavings(){
+    renderChips();
+    const cpd=num(S().cpd), r=scen(cpd), u=r.u, pct=u.storeCig>0?Math.round((1-u.rollCig/u.storeCig)*100):0;
+    $("hYear").textContent=money(r.year);
+    $("hSub").textContent=`${money(r.year/12)} a month · ${m2(r.save)} a day`;
+    $("pStore").textContent=m2(u.storeCig*u.perPack); $("pStoreS").textContent=m2(u.storeCig)+" each";
+    $("pRoll").textContent=m2(u.rollCig*u.perPack); $("pRollS").textContent=`${pct}% cheaper`;
+    $("pBE").textContent=beText(r.be); $("pBES").textContent=money(u.setup)+" in equipment";
+    $("p5").textContent=money(r.year*5-u.setup);
+    const a=actual();
+    $("soFar").style.display=a.has?"flex":"none";
+    if(a.has){ $("soFarV").textContent=money(a.saved); $("soFarV").className=a.saved<0?"bad":"good"; $("soFarS").textContent=`in ${a.days} days`; }
+    drawChart(r);
+    const gDay=num(S().gPer)*u.w*cpd, tDay=cpd*u.w;
+    const bag=gDay>0?u.gramsBag/gDay:0, box=tDay>0?num(S().tubeCount)/tDay:0;
+    $("rBag").textContent=bag?bag.toFixed(0):"–"; $("rBox").textContent=box?box.toFixed(0):"–";
+    $("rMonth").textContent=cpd>0?`Each month: about ${(30.4/bag).toFixed(1)} bags and ${(30.4/box).toFixed(1)} boxes, ${money(r.roll*30.4)} in supplies vs ${money(r.store*30.4)} in packs.`:"";
+    const rows=PRESETS.map(p=>[p[0]+"/day",p[1]]); if(!PRESETS.some(p=>p[1]===cpd)&&cpd>0) rows.push(["You",cpd]);
+    rows.sort((x,y)=>x[1]-y[1]);
+    $("cmp").innerHTML=rows.map(([l,c])=>{const s=scen(c);return `<tr class="${c===cpd?"cur":""}"><td>${l}</td><td class="bad">${money(s.store*365)}</td><td class="good">${money(s.roll*365)}</td><td><b>${money(s.year)}</b></td></tr>`;}).join("");
+  }
+  function drawChart(r){
+    const W=520,H=230,pl=54,pr=10,pt=10,pb=26,n=12,pts=[];
+    for(let m=0;m<=n;m++){const d=m*30.4167;pts.push({m,a:r.store*d,b:r.u.setup+r.roll*d});}
+    const mx=Math.max(1,...pts.map(p=>Math.max(p.a,p.b))), p10=Math.pow(10,Math.floor(Math.log10(mx))), f=mx/p10;
+    const top=(f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p10;
+    const x=m=>pl+(W-pl-pr)*m/n, y=v=>pt+(H-pt-pb)*(1-v/top);
+    let g="";
+    for(let i=0;i<=4;i++){const v=top*i/4;g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end">${money(v)}</text>`;}
+    for(let m=0;m<=n;m+=3) g+=`<text x="${x(m)}" y="${H-6}" text-anchor="middle">${m?"Mo "+m:"Start"}</text>`;
+    const path=k=>pts.map((p,i)=>(i?"L":"M")+x(p.m).toFixed(1)+","+y(p[k]).toFixed(1)).join("");
+    g+=`<path d="${path("a")} ${pts.slice().reverse().map(p=>"L"+x(p.m).toFixed(1)+","+y(p.b).toFixed(1)).join("")}Z" fill="var(--good)" opacity=".1"/>`;
+    g+=`<path d="${path("a")}" fill="none" stroke="var(--bad)" stroke-width="2.5"/><path d="${path("b")}" fill="none" stroke="var(--good)" stroke-width="2.5"/>`;
+    const L=pts[n];
+    g+=`<text x="${x(n)}" y="${y(L.a)-6}" text-anchor="end" style="fill:var(--bad);font-weight:700">${money(L.a)}</text><text x="${x(n)}" y="${y(L.b)-6}" text-anchor="end" style="fill:var(--good);font-weight:700">${money(L.b)}</text>`;
+    $("chart").innerHTML=g;
+  }
+
+  // ---------- LOG ----------
+  const TYPES=["Tobacco","Tubes","Equipment","Machine turn","Other"];
+  function renderQuick(){
+    const s=S();
+    const q=[["Tobacco",num(s.tobPrice),`${s.tobOz} oz bag`],["Tubes",num(s.tubePrice),`box of ${s.tubeCount}`],["Equipment",0,""],["Other",0,""]];
+    $("quick").innerHTML=q.map(([t,c,n])=>`<button class="btn ghost" data-t="${t}" data-c="${c}" data-n="${esc(n)}">＋ ${t}${c?` ${m2(c)}`:""}</button>`).join("");
+    $("quick").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+      const it={id:uid(),date:today(),type:b.dataset.t,note:b.dataset.n,cost:num(b.dataset.c)};
+      D.log.items.unshift(it); if(!D.log.start){ D.log.start=today(); }
+      openId=num(it.cost)?null:it.id; save(); renderAll(); toast(b.dataset.t+" added");
     });
-  });
-
-  function renderPresets(){
-    const box=$("presets"); box.innerHTML="";
-    PRESETS.forEach(p=>{
-      const b=document.createElement("button");
-      b.className="chip"+(num(S.cpd)===p.cpd?" on":"");
-      b.textContent=p.label;
-      b.onclick=()=>{ S.cpd=p.cpd; $("cpd").value=p.cpd; save(); render(); };
-      box.appendChild(b);
+  }
+  let openId=null;
+  function renderLog(){
+    $("start").value=D.log.start||"";
+    const a=actual(), u=unit();
+    $("lSpent").textContent=m2(a.spent);
+    if(a.has){
+      $("lSaved").textContent=money(a.saved); $("lSaved").style.color=a.saved<0?"var(--bad)":"";
+      $("lSavedS").textContent=a.saved<0?`Day ${a.days} — still paying off setup`:`in ${a.days} days of rolling`;
+      $("lWould").textContent=money(a.would); $("lWouldS").textContent=`${a.packs} packs at ${m2(num(S().packPrice))}`;
+    } else { $("lSaved").textContent="–"; $("lSaved").style.color=""; $("lSavedS").textContent="Set your start date below"; $("lWould").textContent="–"; $("lWouldS").textContent=""; }
+    renderQuick();
+    const items=(D.log.items||[]).slice().sort((x,y)=>(y.date||"").localeCompare(x.date||""));
+    const box=$("entries");
+    if(!items.length){ box.innerHTML=`<div class="empty">Nothing logged yet. Tap a button above when you buy supplies.</div>`; return; }
+    box.innerHTML=items.map(i=>`<div class="entry${i.id===openId?" open":""}" data-id="${i.id}">
+      <div><div class="t"><span class="tag${i.type==="Machine turn"?" req":""}">${esc(i.type)}</span>${esc(i.note||"")}</div><div class="m">${esc(shortDate(i.date))}${i.packs?` · ${i.packs} pack${i.packs>1?"s":""}`:""}</div></div>
+      <div class="c">${num(i.cost)?m2(num(i.cost)):"–"}</div>
+      <div class="acts">
+        <input type="date" data-k="date" value="${esc(i.date)}">
+        <select data-k="type">${TYPES.map(t=>`<option${t===i.type?" selected":""}>${t}</option>`).join("")}</select>
+        <input data-k="note" value="${esc(i.note)}" placeholder="Note">
+        <div class="money"><input type="number" inputmode="decimal" step="0.01" data-k="cost" value="${num(i.cost)||""}" placeholder="0.00"></div>
+        <button class="btn ghost" data-act="done">Done</button>
+        <button class="btn ghost" data-act="del" style="color:var(--bad);border-color:var(--bad)">Delete</button>
+      </div></div>`).join("");
+    box.querySelectorAll(".entry").forEach(el=>{
+      const it=D.log.items.find(x=>x.id===el.dataset.id);
+      el.addEventListener("click",e=>{ if(e.target.closest(".acts")) return; openId=openId===it.id?null:it.id; renderLog(); });
+      el.querySelectorAll("[data-k]").forEach(inp=>inp.addEventListener("input",()=>{ const k=inp.dataset.k; it[k]=k==="cost"?num(inp.value):inp.value; save(); renderStatsOnly(); }));
+      el.querySelector('[data-act="done"]').onclick=()=>{ openId=null; renderAll(); };
+      el.querySelector('[data-act="del"]').onclick=()=>{ D.log.items=D.log.items.filter(x=>x.id!==it.id); openId=null; save(); renderAll(); toast("Deleted"); };
     });
   }
+  function renderStatsOnly(){ const keep=openId; renderSavings(); const a=actual(); $("lSpent").textContent=m2(a.spent); if(a.has){ $("lSaved").textContent=money(a.saved);} openId=keep; }
+  $("start").addEventListener("input",()=>{ D.log.start=$("start").value; save(); renderAll(); });
 
+  // ---------- SETUP ----------
+  const F=["cpd","perPack","packPrice","tobPrice","tobOz","tubePrice","tubeCount","waste","fee","gPer"];
+  function fillSetup(){
+    F.forEach(k=>$(k).value=S()[k]);
+    const g=String(num(S().gPer)); $("size").value=(g==="0.7"||g==="0.85")?g:"custom";
+    $("myName").value=D.name||"";
+    renderEquip();
+  }
+  F.forEach(k=>$(k).addEventListener("input",()=>{ S()[k]=$(k).value; if(k==="gPer") $("size").value=["0.7","0.85"].includes(String(num($(k).value)))?String(num($(k).value)):"custom"; save(); renderAll(true); }));
+  $("size").addEventListener("change",()=>{ if($("size").value!=="custom"){ S().gPer=num($("size").value); $("gPer").value=S().gPer; save(); renderAll(true);} });
+  $("myName").addEventListener("input",()=>{ D.name=$("myName").value.trim(); $("rName").value=D.name; save(); });
   function renderEquip(){
     const box=$("equip"); box.innerHTML="";
-    S.equip.forEach((e,i)=>{
-      const r=document.createElement("div"); r.className="eq-row";
-      r.innerHTML=`<input value="${esc(e.name)}" placeholder="Item"><div class="money"><input type="number" step="0.01" min="0" value="${e.cost}"></div><button class="x" title="Remove">×</button>`;
+    S().equip.forEach((e,i)=>{
+      const r=document.createElement("div"); r.className="eq";
+      r.innerHTML=`<input value="${esc(e.name)}" placeholder="Item"><div class="money"><input type="number" inputmode="decimal" step="0.01" value="${e.cost}"></div><button class="x" aria-label="Remove">×</button>`;
       const [n,c]=r.querySelectorAll("input");
-      n.oninput=()=>{e.name=n.value;save();render(false);};
-      c.oninput=()=>{e.cost=c.value;save();render(false);};
-      r.querySelector(".x").onclick=()=>{S.equip.splice(i,1);save();renderEquip();render();};
+      n.oninput=()=>{e.name=n.value;save();};
+      c.oninput=()=>{e.cost=num(c.value);save();renderAll(true);};
+      r.querySelector(".x").onclick=()=>{S().equip.splice(i,1);save();renderEquip();renderAll(true);};
       box.appendChild(r);
     });
+    $("eqTotal").textContent=m2(unit().setup);
   }
-  $("addEq").onclick=()=>{S.equip.push({name:"",cost:0});save();renderEquip();render();};
-  $("reset").onclick=()=>{ S=structuredCloneSafe(DEFAULTS); save(); fillInputs(); render(); toast("Reset to defaults"); };
+  $("addEq").onclick=()=>{ S().equip.push({name:"",cost:0}); save(); renderEquip(); };
+  $("reset").onclick=()=>{ if(!confirmTap($("reset"),"Tap again to reset prices")) return; D.settings=clone(DEFAULTS.settings); save(); fillSetup(); renderAll(); toast("Prices reset"); };
+  function confirmTap(btn,msg){ if(btn.dataset.armed){ delete btn.dataset.armed; btn.textContent=btn.dataset.label; return true; }
+    btn.dataset.label=btn.textContent; btn.dataset.armed="1"; btn.textContent=msg; setTimeout(()=>{ if(btn.dataset.armed){ delete btn.dataset.armed; btn.textContent=btn.dataset.label; } },3000); return false; }
 
-  function esc(s){return String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
-  function save(){ store.set(KEY,S); }
-
-  // ---------- render ----------
-  function render(){
-    const cpd=num(S.cpd);
-    const r=scenario(S,cpd), u=r.u;
-    $("eqTotal").textContent=fmt2(u.setup);
-    renderPresets();
-
-    $("kYear").textContent=fmt(r.year.save);
-    $("kYearS").textContent=fmt(r.year1Net)+" net in year one";
-    $("kMonth").textContent=fmt(r.year.save/12);
-    $("kMonthS").textContent=fmt2(r.saveDay)+" per day";
-    $("kBE").textContent=beText(r.beDays);
-    $("kBES").textContent="to pay off "+fmt(u.setup)+" setup";
-    $("k5").textContent=fmt(r.y5);
-
-    const pp=u.perPack;
-    $("cStorePack").textContent=fmt2(u.storeCig*pp);
-    $("cStoreCig").textContent=fmt2(u.storeCig)+" per cigarette";
-    $("cRollPack").textContent=fmt2(u.rollCig*pp);
-    $("cRollCig").textContent=fmt2(u.rollCig)+" per cigarette";
-    const pct = u.storeCig>0 ? Math.round((1-u.rollCig/u.storeCig)*100) : 0;
-    $("breakdown").innerHTML=`Rolled cost per cigarette = tobacco <b>${fmt(u.tobCig,3)}</b> + tube <b>${fmt(u.tubeCig,3)}</b>${u.feeCig>0?` + machine fee <b>${fmt(u.feeCig,3)}</b>`:""} (incl. ${num(S.waste)}% waste). That's <b class="${pct>=0?'good':'bad'}">${pct}% ${pct>=0?'cheaper':'more expensive'}</b> than store-bought.`;
-
-    drawChart(r);
-    renderRestock(r,cpd);
-    renderCompare(cpd);
-    renderTracker();
+  // backup / restore
+  const backupText=()=>"RFS1:"+btoa(unescape(encodeURIComponent(JSON.stringify(D))));
+  function restore(txt){
+    try{
+      txt=String(txt).trim(); let obj;
+      if(txt.startsWith("RFS1:")) obj=JSON.parse(decodeURIComponent(escape(atob(txt.slice(5)))));
+      else obj=JSON.parse(txt);
+      if(!obj||!obj.settings) throw 0;
+      const base=clone(DEFAULTS); base.settings=Object.assign(base.settings,obj.settings); base.log=Object.assign(base.log,obj.log||{}); base.name=obj.name||"";
+      D=base; save(); fillSetup(); renderAll(); toast("Backup restored");
+    }catch(e){ toast("That backup didn't work"); }
   }
-
-  function drawChart(r){
-    const svg=$("chart"), W=640,H=260,pl=58,pr=14,pt=12,pb=28;
-    const months=12, pts=[];
-    for(let m=0;m<=months;m++){ const d=m*30.4167; pts.push({m,store:r.day.store*d, roll:r.u.setup+r.day.roll*d}); }
-    const max=Math.max(1,...pts.map(p=>Math.max(p.store,p.roll)));
-    const nice=niceMax(max);
-    const x=m=>pl+(W-pl-pr)*m/months, y=v=>pt+(H-pt-pb)*(1-v/nice);
-    let g="";
-    for(let i=0;i<=4;i++){ const v=nice*i/4; g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl-8}" y="${y(v)+4}" text-anchor="end">${fmt(v)}</text>`; }
-    for(let m=0;m<=months;m+=2) g+=`<text x="${x(m)}" y="${H-8}" text-anchor="middle">${m===0?"Start":"Mo "+m}</text>`;
-    const line=k=>pts.map((p,i)=>(i?"L":"M")+x(p.m).toFixed(1)+","+y(p[k]).toFixed(1)).join("");
-    const area=`${line("store")} ${pts.slice().reverse().map(p=>"L"+x(p.m).toFixed(1)+","+y(p.roll).toFixed(1)).join("")}Z`;
-    const last=pts[months];
-    g+=`<path d="${area}" fill="var(--good)" opacity=".10"/>`;
-    g+=`<path d="${line("store")}" fill="none" stroke="var(--store)" stroke-width="2.5"/>`;
-    g+=`<path d="${line("roll")}" fill="none" stroke="var(--roll)" stroke-width="2.5"/>`;
-    g+=`<text x="${x(months)-4}" y="${y(last.store)-6}" text-anchor="end" style="fill:var(--store);font-weight:700">${fmt(last.store)}</text>`;
-    g+=`<text x="${x(months)-4}" y="${y(last.roll)-6}" text-anchor="end" style="fill:var(--roll);font-weight:700">${fmt(last.roll)}</text>`;
-    if(isFinite(r.beDays) && r.beDays<=365){
-      const bm=r.beDays/30.4167, bx=x(bm), by=y(r.day.store*r.beDays);
-      g+=`<circle cx="${bx}" cy="${by}" r="4.5" fill="var(--accent)"/><text x="${bx+8}" y="${by-8}" style="fill:var(--accent);font-weight:600">break-even</text>`;
-    }
-    svg.innerHTML=g;
-  }
-  function niceMax(v){ const p=Math.pow(10,Math.floor(Math.log10(v))); const n=v/p; return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p; }
-
-  function renderRestock(r,cpd){
-    const u=r.u;
-    const gPerDay=num(S.gPer)*u.wasteF*cpd, tubesPerDay=cpd*u.wasteF;
-    const bagDays = gPerDay>0 ? u.gramsBag/gPerDay : Infinity;
-    const boxDays = tubesPerDay>0 ? num(S.tubeCount)/tubesPerDay : Infinity;
-    $("rBag").textContent=isFinite(bagDays)?bagDays.toFixed(1):"–";
-    $("rBox").textContent=isFinite(boxDays)?boxDays.toFixed(1):"–";
-    $("rMonth").textContent=cpd>0?`${Math.ceil(30.4/bagDays)} bag${Math.ceil(30.4/bagDays)>1?"s":""} + ${Math.ceil(30.4/boxDays)} box${Math.ceil(30.4/boxDays)>1?"es":""}`:"–";
-    const periods=[["Week",7],["Month",30.4167],["3 months",91.25],["Year",365]];
-    $("restock").innerHTML=periods.map(([l,d])=>{
-      const bags=cpd?d/bagDays:0, boxes=cpd?d/boxDays:0;
-      return `<tr><td>${l}</td><td class="num">${bags.toFixed(1)}</td><td class="num">${boxes.toFixed(1)}</td><td class="num good">${fmt(r.day.roll*d)}</td><td class="num bad">${fmt(r.day.store*d)}</td></tr>`;
-    }).join("");
-  }
-
-  function renderCompare(cpd){
-    const rows=[...PRESETS,...(S.extraScen||[]).map((s,i)=>({...s,extra:i}))];
-    if(!rows.some(p=>num(p.cpd)===cpd) && cpd>0) rows.push({label:"Your setting",cpd});
-    rows.sort((a,b)=>a.cpd-b.cpd);
-    $("cmp").innerHTML=rows.map(p=>{
-      const r=scenario(S,num(p.cpd));
-      const del = p.extra!==undefined ? ` <button class="x" style="width:24px;height:24px;font-size:13px" data-del="${p.extra}">×</button>`:"";
-      return `<tr class="${num(p.cpd)===cpd?'cur':''}"><td>${esc(p.label)}${del}</td><td class="num">${p.cpd}</td><td class="num">${Math.round(p.cpd*365/r.u.perPack)}</td><td class="num bad">${fmt(r.year.store)}</td><td class="num good">${fmt(r.year.roll)}</td><td class="num"><b>${fmt(r.year.save)}</b></td><td class="num">${beText(r.beDays)}</td></tr>`;
-    }).join("");
-    $("cmp").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{S.extraScen.splice(+b.dataset.del,1);save();render();});
-  }
-  $("addScen").onclick=()=>{
-    const c=num($("newCpd").value); if(c<=0){toast("Enter cigarettes per day");return;}
-    S.extraScen=S.extraScen||[]; S.extraScen.push({label:$("newLabel").value||(c+" per day"),cpd:c});
-    $("newLabel").value="";$("newCpd").value=""; save(); render(); toast("Scenario added");
+  $("bkCopy").onclick=async()=>{ try{ await navigator.clipboard.writeText(backupText()); toast("Backup code copied"); }catch(e){ $("bkPaste").value=backupText(); $("bkPaste").select(); toast("Copy the code in the box"); } };
+  $("bkSave").onclick=()=>{
+    try{ const blob=new Blob([JSON.stringify(D,null,1)],{type:"application/json"}); const a=document.createElement("a");
+      a.href=URL.createObjectURL(blob); a.download=`roll-for-savings-backup-${today()}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000); toast("Backup saved");
+    }catch(e){ toast("Use Copy backup code instead"); }
   };
+  $("bkLoad").onclick=()=>{ if($("bkPaste").value.trim()) restore($("bkPaste").value); };
+  $("bkFile").onchange=e=>{ const f=e.target.files[0]; if(!f) return; f.text().then(restore); e.target.value=""; };
 
-  // ---------- tracker ----------
-  function saveLog(){ store.set(LKEY,L); }
-  $("startDate").addEventListener("input",()=>{L.start=$("startDate").value;saveLog();renderTracker();});
-  document.querySelectorAll("[data-quick]").forEach(b=>b.onclick=()=>{
-    const t=b.dataset.quick;
-    const def={Tobacco:num(S.tobPrice),Tubes:num(S.tubePrice),Equipment:0,Other:0}[t];
-    L.items.push({date:new Date().toISOString().slice(0,10),type:t,note:"",cost:def});
-    saveLog(); renderLog(); renderTracker();
-  });
-  function renderLog(){
-    const box=$("log"); box.innerHTML="";
-    if(!L.items.length){ box.innerHTML=`<p class="hint" style="margin:6px 0">No purchases logged yet — tap a button below to add one.</p>`; return; }
-    L.items.forEach((it,i)=>{
-      const r=document.createElement("div"); r.className="log-row";
-      r.innerHTML=`<input type="date" value="${it.date}"><input value="${esc(it.note)}" placeholder="Note (brand, size…)"><select>${["Tobacco","Tubes","Equipment","Other"].map(o=>`<option${o===it.type?" selected":""}>${o}</option>`).join("")}</select><div class="money"><input type="number" step="0.01" value="${it.cost}"></div><button class="x">×</button>`;
-      const [d,n,c]=r.querySelectorAll("input"), s=r.querySelector("select");
-      d.oninput=()=>{it.date=d.value;saveLog();renderTracker();};
-      n.oninput=()=>{it.note=n.value;saveLog();};
-      s.oninput=()=>{it.type=s.value;saveLog();renderTracker();};
-      c.oninput=()=>{it.cost=c.value;saveLog();renderTracker();};
-      r.querySelector(".x").onclick=()=>{L.items.splice(i,1);saveLog();renderLog();renderTracker();};
-      box.appendChild(r);
-    });
-  }
-  function renderTracker(){
-    $("startDate").value=L.start||"";
-    const cpd=num(S.cpd), u=unit(S);
-    const spent=L.items.reduce((a,b)=>a+num(b.cost),0);
-    let days=0;
-    if(L.start){ days=Math.max(0,Math.floor((Date.now()-new Date(L.start+"T00:00:00").getTime())/86400000)); }
-    const would=days*cpd*u.storeCig;
-    $("tDays").textContent=L.start?days:"–";
-    $("tDaysS").textContent=L.start?`≈ ${Math.round(days*cpd).toLocaleString()} cigarettes rolled`:"set your start date";
-    $("tSpent").textContent=fmt2(spent);
-    $("tWould").textContent=L.start?fmt(would):"–";
-    $("tWouldS").textContent=L.start?`${Math.round(days*cpd/u.perPack)} packs at ${fmt2(packCost(S))}`:"";
-    const saved=would-spent;
-    $("tSaved").textContent=L.start?fmt(saved):"–";
-    $("tSaved").style.color = saved<0?"var(--bad)":"";
-    $("tSavedS").textContent=L.start?(saved<0?"still paying off setup":"in your pocket so far"):"set start date & log buys";
-  }
-
-  // ---------- I need more (shared machine requests) ----------
-  const M={db:null,user:null,uid:null,owner:false,canWrite:null,writeBlocked:false,
-    shop:{fee:0,name:""}, mine:null, all:[], busy:false};
-  const NAME_KEY="ryo-myname";
-  $("fName").value=(store.get(NAME_KEY)||"");
-  function setStatus(html){ const c=$("moreStatus"); if(!html){c.classList.add("hidden");return;} c.classList.remove("hidden"); c.innerHTML=`<p class="hint" style="margin:0">${html}</p>`; }
-  function ownerName(){ return M.shop.name||"the machine owner"; }
-  function qtyPacks(){ const q=Math.max(1,Math.round(num($("fQty").value))); return $("fUnit").value==="cartons"?q*10:q; }
-  function statusPill(st){ const t={new:"New",scheduled:"Scheduled",done:"Done"}[st]||"New"; return `<span class="pill ${st||"new"}">${t}</span>`; }
-  function dateTxt(d){ if(!d) return ""; try{ return new Date(d+"T00:00:00").toLocaleDateString("en-US",{month:"short",day:"numeric"}); }catch(e){ return d; } }
-
-  // friend form
-  document.querySelectorAll(".qbtn").forEach(b=>b.onclick=()=>{ $("fQty").value=Math.max(1,num($("fQty").value)+num(b.dataset.q)); updateFee(); });
-  ["fQty","fUnit","fBy","fNote","fName"].forEach(id=>$(id).addEventListener("input",updateFee));
-  function updateFee(){
-    const packs=qtyPacks(), fee=num(M.shop.fee);
-    $("fFee").innerHTML = fee>0 ? `${packs} pack${packs>1?"s":""} × ${fmt2(fee)} machine fee = <b style="color:var(--ink)">${fmt2(packs*fee)}</b>` : `${packs} pack${packs>1?"s":""} — no machine fee`;
-    $("fMsg").value=buildMsg();
-  }
-  function buildMsg(){
-    const packs=qtyPacks(), fee=num(M.shop.fee), nm=$("fName").value.trim();
-    let m=`Hey ${M.shop.name||""}${M.shop.name?",":""} it's ${nm||"me"}. I need more — can I get a turn on the machine for ${packs} pack${packs>1?"s":""}?`;
-    if($("fBy").value) m+=` Need them by ${dateTxt($("fBy").value)}.`;
-    if($("fNote").value.trim()) m+=` ${$("fNote").value.trim()}`;
-    if(fee>0) m+=` (Machine fee: ${fmt2(packs*fee)})`;
+  // ---------- I NEED MORE ----------
+  const sheet=$("sheet"), bg=$("sheetBg");
+  function openSheet(){ $("rName").value=D.name||""; $("nameWrap").style.display=D.name?"none":"block"; updateReq(); bg.classList.add("on"); requestAnimationFrame(()=>sheet.classList.add("on")); }
+  function closeSheet(){ sheet.classList.remove("on"); bg.classList.remove("on"); }
+  $("fab").onclick=openSheet; bg.onclick=closeSheet;
+  sheet.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{ $("rQty").value=Math.max(1,num($("rQty").value)+num(b.dataset.q)); updateReq(); });
+  ["rQty","rUnit","rBy","rNote","rName"].forEach(id=>$(id).addEventListener("input",updateReq));
+  const reqPacks=()=>Math.max(1,Math.round(num($("rQty").value)))*num($("rUnit").value);
+  function reqMsg(){
+    const packs=reqPacks(), nm=($("rName").value||D.name||"").trim(), fee=num(S().fee);
+    let m=`Hey${nm?`, it's ${nm}`:""}. I need more — can I get a turn on the machine for ${packs} pack${packs>1?"s":""}?`;
+    if($("rBy").value) m+=` Need them by ${shortDate($("rBy").value)}.`;
+    if($("rNote").value.trim()) m+=" "+$("rNote").value.trim();
+    if(fee>0) m+=` (Machine fee ${m2(packs*fee)})`;
     return m.replace(/\s+/g," ").trim();
   }
-  function showFallback(){
-    $("fFallback").classList.remove("hidden");
-    $("fSend").textContent="Write my request";
-    $("myReqCard").classList.add("hidden");
-    $("fSms").href = `sms:?&body=${encodeURIComponent(buildMsg())}`;
+  function updateReq(){ $("rPreview").textContent=reqMsg(); $("rText").href="sms:?&body="+encodeURIComponent(reqMsg()); }
+  function logReq(){
+    const nm=$("rName").value.trim(); if(nm&&!D.name){ D.name=nm; $("myName").value=nm; }
+    const packs=reqPacks();
+    D.log.items.unshift({id:uid(),date:today(),type:"Machine turn",note:($("rNote").value.trim()||"Requested"),packs,cost:+(packs*num(S().fee)).toFixed(2)});
+    save(); renderAll();
+    $("rQty").value=1; $("rBy").value=""; $("rNote").value="";
   }
-  $("fCopy").onclick=async()=>{ try{ await navigator.clipboard.writeText(buildMsg()); toast("Message copied"); }catch(e){ toast("Select the text and copy it"); } };
-  $("fSend").onclick=async()=>{
-    const nm=$("fName").value.trim();
-    if(!nm){ toast("Add your name first"); $("fName").focus(); return; }
-    store.set(NAME_KEY,nm);
-    if(!M.db||!M.uid||M.writeBlocked||M.canWrite===false){ showFallback(); updateFee(); $("fFallback").scrollIntoView({behavior:"smooth",block:"center"}); return; }
-    if(M.busy) return; M.busy=true; $("fSend").disabled=true;
-    const line={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6), packs:qtyPacks(), by:$("fBy").value||"", note:$("fNote").value.trim().slice(0,200),
-      fee:num(M.shop.fee), at:new Date().toISOString(), status:"new", paid:false};
-    const cur=M.mine?JSON.parse(JSON.stringify(M.mine)):{items:[]};
-    cur.items=(cur.items||[]).concat([line]).slice(-50); cur.name=nm.slice(0,60); cur.updatedAt=line.at;
-    try{ await M.db.doc("requests/"+M.uid).set(cur); toast("Request sent to "+ownerName());
-      $("fQty").value=1; $("fBy").value=""; $("fNote").value=""; updateFee(); }
-    catch(e){ if(e&&e.code==="invalid_argument"){ M.writeBlocked=true; showFallback(); updateFee(); toast("Can't save here — text it instead"); } else toast("Couldn't send — try again"); }
-    M.busy=false; $("fSend").disabled=false;
-  };
-  function renderMine(){
-    const box=$("myReqs"), items=(M.mine&&M.mine.items)||[];
-    if(!items.length){ box.innerHTML=`<p class="hint" style="margin:0">No requests yet.</p>`; return; }
-    box.innerHTML=items.slice().reverse().map(it=>`<div class="req"><div><div class="who">${it.packs} pack${it.packs>1?"s":""}${it.by?` · by ${esc(dateTxt(it.by))}`:""}</div><div class="meta">${esc(it.note||"")}${it.note?" · ":""}asked ${esc(new Date(it.at).toLocaleDateString("en-US",{month:"short",day:"numeric"}))}${it.fee>0?` · fee ${fmt2(it.packs*it.fee)}${it.paid?" (paid)":""}`:""}</div></div><div class="ctl">${statusPill(it.status)}</div></div>`).join("");
-  }
+  $("rText").addEventListener("click",()=>{ updateReq(); setTimeout(()=>{ logReq(); closeSheet(); },300); });
+  $("rCopy").onclick=async()=>{ try{ await navigator.clipboard.writeText(reqMsg()); toast("Copied — paste it in a text"); }catch(e){ toast("Couldn't copy"); } logReq(); closeSheet(); };
 
-  // owner side
-  let ownerSaveT=null;
-  ["oFee","oName"].forEach(id=>$(id).addEventListener("input",()=>{
-    clearTimeout(ownerSaveT); $("oSaved").textContent="Saving…";
-    ownerSaveT=setTimeout(async()=>{
-      const next={fee:Math.max(0,num($("oFee").value)), name:$("oName").value.trim().slice(0,60)};
-      try{ await M.db.doc("config/shop").set(next); $("oSaved").textContent="Saved — others see this now."; }
-      catch(e){ $("oSaved").textContent="Couldn't save — try again."; }
-    },700);
-  }));
-  async function ownerUpdate(personId, mutate){
-    const p=M.all.find(x=>x.id===personId); if(!p) return;
-    const body=JSON.parse(JSON.stringify(p.data)); mutate(body);
-    try{ await M.db.doc("requests/"+personId).set(body); }catch(e){ toast("Couldn't update — try again"); }
+  // ---------- navigation ----------
+  function go(t){
+    document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id==="s-"+t));
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.go===t));
+    $("fab").style.display=t==="setup"?"none":"";
+    window.scrollTo(0,0);
   }
-  function renderOwner(){
-    const rows=[]; let open=0, packs=0, owed=0;
-    M.all.forEach(p=>{ (p.data.items||[]).forEach(it=>{
-      rows.push({pid:p.id, name:p.data.name||"Someone", it});
-      if(it.status!=="done"){ open++; packs+=num(it.packs); }
-      if(it.status==="done" && !it.paid) owed+=num(it.packs)*num(it.fee);
-    });});
-    $("oOpen").textContent=open; $("oOpenS").textContent=`from ${new Set(rows.filter(r=>r.it.status!=="done").map(r=>r.pid)).size} people`;
-    $("oPacks").textContent=packs; $("oOwed").textContent=fmt2(owed);
-    const order={new:0,scheduled:1,done:2};
-    rows.sort((a,b)=>(order[a.it.status]??0)-(order[b.it.status]??0) || (a.it.by||"9").localeCompare(b.it.by||"9") || a.it.at.localeCompare(b.it.at));
-    const box=$("oReqs");
-    if(!rows.length){ box.innerHTML=`<p class="hint" style="margin:0">No requests yet. Share this page and people can tap "I need more."</p>`; return; }
-    box.innerHTML=rows.map(r=>`<div class="req" data-pid="${esc(r.pid)}" data-id="${esc(r.it.id)}"><div><div class="who">${esc(r.name)} — ${r.it.packs} pack${r.it.packs>1?"s":""}</div><div class="meta">${r.it.by?`need by <b>${esc(dateTxt(r.it.by))}</b> · `:""}${esc(r.it.note||"")}${r.it.note?" · ":""}asked ${esc(new Date(r.it.at).toLocaleDateString("en-US",{month:"short",day:"numeric"}))}${r.it.fee>0?` · fee ${fmt2(r.it.packs*r.it.fee)}`:""}</div></div><div class="ctl"><select data-act="status">${["new","scheduled","done"].map(s=>`<option value="${s}"${s===(r.it.status||"new")?" selected":""}>${{new:"New",scheduled:"Scheduled",done:"Done"}[s]}</option>`).join("")}</select>${r.it.fee>0?`<label class="paid"><input type="checkbox" data-act="paid"${r.it.paid?" checked":""}>Paid</label>`:""}<button class="x" data-act="del" title="Remove">×</button></div></div>`).join("");
-    box.querySelectorAll(".req").forEach(el=>{
-      const pid=el.dataset.pid, id=el.dataset.id;
-      const find=b=>(b.items||[]).find(i=>i.id===id);
-      el.querySelector('[data-act="status"]').onchange=e=>ownerUpdate(pid,b=>{const i=find(b); if(i) i.status=e.target.value;});
-      const pc=el.querySelector('[data-act="paid"]'); if(pc) pc.onchange=e=>ownerUpdate(pid,b=>{const i=find(b); if(i) i.paid=e.target.checked;});
-      el.querySelector('[data-act="del"]').onclick=()=>ownerUpdate(pid,b=>{b.items=(b.items||[]).filter(i=>i.id!==id);});
-    });
-  }
-  $("oClear").onclick=async()=>{
-    for(const p of M.all){
-      const items=p.data.items||[]; const keep=items.filter(i=>!(i.status==="done" && (i.paid || !(num(i.fee)>0))));
-      if(keep.length!==items.length) await ownerUpdate(p.id,b=>{b.items=keep;});
-    }
-    toast("Cleared finished requests");
-  };
-
-  function applyShop(){
-    updateFee();
-    $("friendIntro").textContent=`Bring your own tobacco and tubes. Ask ${M.shop.name||"the machine owner"} for a turn on the machine and say how many packs you need rolled.`;
-    if(!M.owner && !S.feeTouched && num(S.fee)!==num(M.shop.fee)){ S.fee=num(M.shop.fee); $("fee").value=S.fee; save(); render(); }
-  }
-
-  (async function initMore(){
-    updateFee();
-    const C=window.claude;
-    if(!C||!C.use){ M.shop={fee:num(S.fee),name:"Chris"}; applyShop(); setStatus(""); $("friendView").classList.remove("hidden"); showFallback();
-      $("fFallback").querySelector("p").textContent="Text this to Chris:"; $("fee").addEventListener("input",()=>{M.shop.fee=num(S.fee);applyShop();}); return; }
-    try{ M.user=await C.use("user"); }catch(e){}
-    try{ M.db=await C.use("db"); }catch(e){}
-    if(M.user){
-      try{ M.owner=(await M.user.isOwner())??false; }catch(e){}
-      try{ M.uid=await M.user.id(); }catch(e){}
-      try{ M.canWrite=await M.user.can("data.write"); }catch(e){ M.canWrite=null; }
-    }
-    if(!M.db){ setStatus("Sign in to Claude to see requests. You can still write a text request below."); $("friendView").classList.remove("hidden"); showFallback(); return; }
-    let loaded=false; const t=setTimeout(()=>{ if(!loaded) setStatus("Can't reach the request list yet — it'll show up when the connection catches up."); },10000);
-    M.db.doc("config/shop").onSnapshot(sn=>{
-      const d=sn.exists?sn.data():{}; M.shop={fee:num(d.fee),name:String(d.name||"")};
-      if(M.owner && document.activeElement && !["oFee","oName"].includes(document.activeElement.id)){ $("oFee").value=M.shop.fee||0; $("oName").value=M.shop.name; }
-      applyShop();
-      if(!sn.metadata.fromCache){ loaded=true; clearTimeout(t); setStatus(""); }
-    },()=>{ clearTimeout(t); setStatus(""); });
-    if(M.owner){
-      $("ownerView").classList.remove("hidden");
-      M.db.collection("requests").onSnapshot(qs=>{ M.all=qs.docs.filter(d=>d.exists).map(d=>({id:d.id,data:d.data()})); renderOwner(); },
-        ()=>{ $("oReqs").innerHTML=`<p class="hint">Couldn't load requests.</p>`; });
-      renderOwner();
-    } else {
-      $("friendView").classList.remove("hidden");
-      if(!M.uid || M.canWrite===false){ showFallback(); }
-      else M.db.doc("requests/"+M.uid).onSnapshot(sn=>{ M.mine=sn.exists?sn.data():null; renderMine(); },()=>{});
-      renderMine();
-    }
-  })();
-
-  // ---------- tabs ----------
-  const TABS=["calc","compare","tracker","more"];
-  function showTab(t){
-    if(!TABS.includes(t)) t="calc";
-    TABS.forEach(x=>$("tab-"+x).classList.toggle("hidden",x!==t));
-    document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===t));
-  }
-  document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{
-    showTab(b.dataset.tab);
-    try{ history.replaceState(null,"",b.dataset.tab==="calc"?location.pathname:"#"+b.dataset.tab); }catch(e){}
-  });
-  window.addEventListener("hashchange",()=>showTab(location.hash.slice(1)));
+  document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.go)));
 
   let tt; function toast(m){ const el=$("toast"); el.textContent=m; el.classList.add("show"); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove("show"),1800); }
 
-  fillInputs(); renderLog(); render(); showTab(location.hash.slice(1));
+  function renderAll(fromSetup){ renderSavings(); renderLog(); if(!fromSetup) renderEquip(); else $("eqTotal").textContent=m2(unit().setup); }
+  fillSetup(); renderAll();
+
+  if("serviceWorker" in navigator && location.protocol.startsWith("http")) window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 })();
 </script>
-<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}</script>
 </body>
 </html>
